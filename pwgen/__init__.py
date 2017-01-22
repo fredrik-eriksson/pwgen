@@ -24,7 +24,7 @@ class PasswordLengthError(Exception):
 def save_config(target_file, config):
     path = os.path.expanduser(target_file)
     with open(path, 'w') as f:
-        config.write(f, False)
+        config.write(f)
 
 def update_config(
         config=None,
