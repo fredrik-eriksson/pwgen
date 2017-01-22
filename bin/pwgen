@@ -1,0 +1,115 @@
+#!/usr/bin/python3
+import argparse
+import os
+import sys
+
+import pwgen
+
+default_config_file=os.path.expanduser('~/.pwgen.cfg')
+
+def main():
+
+    parser = argparse.ArgumentParser(description='Generate passwords')
+    parser.add_argument(
+            '--generate-config', '-g',
+            action='store_true',
+            help='Generate configuration file and then exit')
+    parser.add_argument(
+            '--config-file', '-c',
+            help='Configuration file to use',
+            default=default_config_file)
+
+    parser.add_argument(
+            '--myspell-dir', '-i',
+            help='Directory containing myspell dictionaries')
+
+    parser.add_argument(
+            '--lang', '-l',
+            help='Dictionary language to use')
+    parser.add_argument(
+            '--word-min-char', '-m',
+            type=int,
+            help='Minimum number of characters in a word')
+    parser.add_argument(
+            '--word-max-char', '-M',
+            type=int,
+            help='Maximum number of characters in a word')
+
+    parser.add_argument(
+            '--words', '-w',
+            type=int,
+            help='Number of words to use in the passphrase')
+    parser.add_argument(
+            '--capitalize', '-C',
+            choices=('true', 'false', 'random'),
+            help='Capitalize the words')
+    parser.add_argument(
+            '--separators', '-s',
+            help='Possible characters to use as separators')
+    parser.add_argument(
+            '--trailing-digits', '-d',
+            type=int,
+            help='Number of digits at the end of the passphrase')
+    parser.add_argument(
+            '--leading-digits', '-D',
+            type=int,
+            help='Number of digits at the start of the passphrase')
+    parser.add_argument(
+            '--special-chars', '-S',
+            help='Possible characters to use as extra special characters')
+    parser.add_argument(
+            '--trailing-chars', '-p',
+            type=int,
+            help='Number of special characters to add at the end of the passphrase')
+    parser.add_argument(
+            '--leading-chars', '-P',
+            type=int,
+            help='Number of special characters to add at the start of the passphrase')
+    parser.add_argument(
+            '--passwords', '-n',
+            type=int,
+            help='Number of passwords to generate')
+    parser.add_argument(
+            '--max-length', '-L',
+            type=int,
+            help="Maximum length of the generated passwords. Full-knowledge "\
+                 "entropy calculation doesn't work when this is set.")
+
+
+
+    args = vars(parser.parse_args())
+
+    config_file = args['config_file']
+    del args['config_file']
+
+    if not os.path.isfile(config_file):
+        print("Missing configuration file; generating a new at {}".format(config_file))
+        conf = pwgen.update_config()
+        pwgen.save_config(config_file, conf)
+
+    conf = pwgen.get_config(config_file)
+    save_config = args['generate_config']
+    del args['generate_config']
+
+    conf = pwgen.update_config(config=conf, **args)
+
+    if save_config:
+        print("Updating configuration file at {}".format(config_file))
+        pwgen.save_config(config_file, conf)
+        sys.exit(0)
+
+    pwds, seen_entropy = pwgen.generate_passwords(conf)
+
+    print("Generated {} passwords".format(len(pwds)))
+    if seen_entropy:
+        print("Full-knowledge entropy is {0:.2g}".format(seen_entropy))
+    else:
+        print("Unable to calculate full-knowledge entropy since max_length is used")
+    print("Blind entropy\tPassword")
+    print("========================")
+    for pw in pwds.keys():
+        print("{:.5n}\t\t{}".format(pwds[pw]['entropy'], pw))
+    print("========================")
+
+if __name__ == '__main__':
+    main()
