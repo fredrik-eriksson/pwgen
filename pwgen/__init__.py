@@ -3,8 +3,7 @@
 import math
 import os
 import sys
-#import secrets as random
-import random
+import subprocess
 
 if sys.version_info[0] < 3:
     import ConfigParser as configparser
@@ -17,6 +16,9 @@ if sys.version_info >= (3, 6):
 else:
     do_seed = True
     import random
+
+class DictReadError(Exception):
+    pass
 
 class PasswordLengthError(Exception):
     pass
@@ -82,27 +84,60 @@ def get_config(f_name):
     conf.read(f_name)
     return conf
 
-def _read_dictionary(f_name, word_min_chars, word_max_chars):
+def _read_dictionary(conf):
+    lang = conf.get('dictionary', 'lang')
+    word_min_chars = conf.getint('dictionary', 'word_min_char')
+    word_max_chars = conf.getint('dictionary', 'word_max_char')
+    dict_file = os.path.join(conf.get('dictionary', 'myspell_dir'), '{}.dic'.format(conf.get('dictionary', 'lang')))
+    aff_file = os.path.join(conf.get('dictionary', 'myspell_dir'), '{}.aff'.format(conf.get('dictionary', 'lang')))
+    unmunch_bin = conf.get('dictionary', 'unmunch_bin')
     words = set()
     chars = 0
-    with open(f_name, 'r') as f:
-        for line in f:
-            if not line:
+    if os.path.exists(aff_file) and unmunch_bin:
+        with open(os.devnull, 'w') as null:
+            proc = subprocess.Popen(
+                    [ unmunch_bin, dict_file, aff_file ],
+                    stdout=subprocess.PIPE,
+                    stderr=null
+                    )
+            out, err = proc.communicate()
+        if proc.returncode != 0:
+            raise DictReadError('Unmunching dictionaries failed')
+        for word in out.splitlines():
+            save = word.strip().decode('utf-8')
+            if not save:
                 continue
-            first_char = line[0]
+            first_char = save[:1]
+            last_char = save[-1]
             if first_char in '1234567890,.-:':
                 continue
-            word = line.split('/', 1)[0]
-            word = word.strip() # remove newlines
-            last_char = word[-1]
             if last_char in '-':
                 continue
-            if word_min_chars and len(word) < word_min_chars:
+            if word_min_chars and len(save) < word_min_chars:
                 continue
-            if word_max_chars and len(word) > word_max_chars:
+            if word_max_chars and len(save) > word_max_chars:
                 continue
-            words.add(word)
-            chars += len(word)
+            words.add(save)
+            chars += len(save)
+    else:
+        with open(dict_file, 'r') as f:
+            for line in f:
+                if not line:
+                    continue
+                first_char = line[0]
+                if first_char in '1234567890,.-:':
+                    continue
+                word = line.split('/', 1)[0]
+                word = word.strip() # remove newlines
+                last_char = word[-1]
+                if last_char in '-':
+                    continue
+                if word_min_chars and len(word) < word_min_chars:
+                    continue
+                if word_max_chars and len(word) > word_max_chars:
+                    continue
+                words.add(word)
+                chars += len(word)
     return {'words': list(words), 'wordlength': int(chars/len(words))}
     
 
@@ -121,10 +156,7 @@ def generate_passwords(conf):
     if do_seed:
         random.seed()
     res = {}
-    dict_data = _read_dictionary(
-            os.path.join(conf.get('dictionary', 'myspell_dir'), '{}.dic'.format(conf.get('dictionary', 'lang'))), 
-            conf.getint('dictionary', 'word_min_char'),
-            conf.getint('dictionary', 'word_max_char'))
+    dict_data = _read_dictionary(conf)
 
     words = dict_data['words']
     word_length = dict_data['wordlength']
@@ -175,7 +207,11 @@ def generate_passwords(conf):
         trailing_digits = ''.join(random.choice('1234567890') for i in range(nr_of_td))
         leading_chars = ''.join(random.choice(special_chars) for i in range(nr_of_lc)) 
         trailing_chars = ''.join(random.choice(special_chars) for i in range(nr_of_tc)) 
-        pwd = '{ld}{lc}{base}{tc}{td}'.format(
+        if leading_digits or leading_chars:
+            base_pwd = "{}{}".format(separator, base_pwd)
+        if trailing_digits or trailing_chars:
+            base_pwd = "{}{}".format(base_pwd, separator)
+        pwd = '{lc}{ld}{base}{td}{tc}'.format(
                 lc=leading_chars,
                 ld=leading_digits,
                 base=base_pwd,
