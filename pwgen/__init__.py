@@ -35,7 +35,7 @@ def update_config(
         lang='en_US',
         word_min_char=2,
         word_max_char=0,
-        unmunch_bin='/usr/bin/unmunch',
+        unmunch_bin='',
 
         words=4,
         capitalize='random',
