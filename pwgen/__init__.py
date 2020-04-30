@@ -35,6 +35,7 @@ def update_config(
         lang='en_US',
         word_min_char=2,
         word_max_char=0,
+        unmunch_bin='',
 
         words=4,
         capitalize='random',
@@ -63,6 +64,7 @@ def update_config(
     set_if_defined(conf, 'dictionary', 'lang', lang)
     set_if_defined(conf, 'dictionary', 'word_min_char', word_min_char)
     set_if_defined(conf, 'dictionary', 'word_max_char', word_max_char)
+    set_if_defined(conf, 'dictionary', 'unmunch_bin', unmunch_bin)
 
     if not conf.has_section('passwords'):
         conf.add_section('passwords')
