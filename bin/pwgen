@@ -22,6 +22,9 @@ def main():
     parser.add_argument(
             '--myspell-dir', '-i',
             help='Directory containing myspell dictionaries')
+    parser.add_argument(
+            '--encoding', '-e',
+            help="Character encoding of the directory")
 
     parser.add_argument(
             '--lang', '-l',

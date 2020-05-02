@@ -4,6 +4,7 @@ import math
 import os
 import sys
 import subprocess
+import locale
 
 if sys.version_info[0] < 3:
     import ConfigParser as configparser
@@ -36,6 +37,7 @@ def update_config(
         word_min_char=2,
         word_max_char=0,
         unmunch_bin='',
+        encoding='',
 
         words=4,
         capitalize='random',
@@ -65,6 +67,7 @@ def update_config(
     set_if_defined(conf, 'dictionary', 'word_min_char', word_min_char)
     set_if_defined(conf, 'dictionary', 'word_max_char', word_max_char)
     set_if_defined(conf, 'dictionary', 'unmunch_bin', unmunch_bin)
+    set_if_defined(conf, 'dictionary', 'encoding', encoding)
 
     if not conf.has_section('passwords'):
         conf.add_section('passwords')
@@ -93,6 +96,9 @@ def _read_dictionary(conf):
     dict_file = os.path.join(conf.get('dictionary', 'myspell_dir'), '{}.dic'.format(conf.get('dictionary', 'lang')))
     aff_file = os.path.join(conf.get('dictionary', 'myspell_dir'), '{}.aff'.format(conf.get('dictionary', 'lang')))
     unmunch_bin = conf.get('dictionary', 'unmunch_bin')
+    encoding = conf.get('dictionary', 'encoding')
+    if not encoding:
+        encoding =  locale.getpreferredencoding(False)
     words = set()
     chars = 0
     if os.path.exists(aff_file) and unmunch_bin:
@@ -106,7 +112,7 @@ def _read_dictionary(conf):
         if proc.returncode != 0:
             raise DictReadError('Unmunching dictionaries failed')
         for word in out.splitlines():
-            save = word.strip().decode('utf-8')
+            save = word.strip().decode(encoding)
             if not save:
                 continue
             first_char = save[:1]
@@ -122,7 +128,7 @@ def _read_dictionary(conf):
             words.add(save)
             chars += len(save)
     else:
-        with open(dict_file, 'r') as f:
+        with open(dict_file, encoding=encoding, mode='r') as f:
             for line in f:
                 if not line:
                     continue
