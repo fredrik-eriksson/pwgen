@@ -11,6 +11,10 @@ def main():
 
     parser = argparse.ArgumentParser(description='Generate passwords')
     parser.add_argument(
+            '--quiet', '-q',
+            action='store_true',
+            help='Only echo the generated passwords.')
+    parser.add_argument(
             '--generate-config', '-g',
             action='store_true',
             help='Generate configuration file and then exit')
@@ -82,6 +86,9 @@ def main():
 
     args = vars(parser.parse_args())
 
+    quiet = args['quiet']
+    del args['quiet']
+
     config_file = args['config_file']
     del args['config_file']
 
@@ -103,16 +110,20 @@ def main():
 
     pwds, seen_entropy = pwgen.generate_passwords(conf)
 
-    print("Generated {} passwords".format(len(pwds)))
-    if seen_entropy:
-        print("Full-knowledge entropy is {0:.2g}".format(seen_entropy))
+    if (quiet):
+      for pw in pwds.keys():
+        print(pw)
     else:
-        print("Unable to calculate full-knowledge entropy since max_length is used")
-    print("Blind entropy\tPassword")
-    print("========================")
-    for pw in pwds.keys():
-        print("{:.5n}\t\t{}".format(pwds[pw]['entropy'], pw))
-    print("========================")
+      print("Generated {} passwords".format(len(pwds)))
+      if seen_entropy:
+          print("Full-knowledge entropy is {0:.2g}".format(seen_entropy))
+      else:
+          print("Unable to calculate full-knowledge entropy since max_length is used")
+      print("Blind entropy\tPassword")
+      print("========================")
+      for pw in pwds.keys():
+          print("{:.5n}\t\t{}".format(pwds[pw]['entropy'], pw))
+      print("========================")
 
 if __name__ == '__main__':
     main()
