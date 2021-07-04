@@ -6,11 +6,10 @@ The functionality is heavily inspired by [HSXKPasswd](https://github.com/bbussch
 # Why
 Because Randall Munroe says so.
 
-![alt text][xkcd]
-[xkcd]: http://imgs.xkcd.com/comics/password_strength.png
+![xkcd](https://imgs.xkcd.com/comics/password_strength.png "XKCD")
 
 # Requirements
-Python 2 or 3 as well as myspell-dictionaries for the language(s) you want to use.
+Python 3 as well as my-/hunspell-dictionaries for the language(s) you want to use.
 
 # What
 A password/passphrase generator. See below for some example usage.
@@ -21,25 +20,27 @@ $ sudo python3 setup.py install
 ...
 
 $ pwgen --help
-usage: pwgen [-h] [--generate-config] [--config-file CONFIG_FILE]
-             [--myspell-dir MYSPELL_DIR] [--lang LANG]
-             [--word-min-char WORD_MIN_CHAR] [--word-max-char WORD_MAX_CHAR]
-             [--words WORDS] [--capitalize {true,false,random}]
-             [--separators SEPARATORS] [--trailing-digits TRAILING_DIGITS]
-             [--leading-digits LEADING_DIGITS] [--special-chars SPECIAL_CHARS]
-             [--trailing-chars TRAILING_CHARS] [--leading-chars LEADING_CHARS]
-             [--passwords PASSWORDS] [--max-length MAX_LENGTH]
+usage: pwgen [-h] [--quiet] [--generate-config] [--config-file CONFIG_FILE] [--myspell-dir MYSPELL_DIR] [--encoding ENCODING]
+             [--unmunch-bin UNMUNCH_BIN] [--lang LANG] [--word-min-char WORD_MIN_CHAR] [--word-max-char WORD_MAX_CHAR] [--words WORDS]
+             [--capitalize {true,false,random}] [--separators SEPARATORS] [--trailing-digits TRAILING_DIGITS]
+             [--leading-digits LEADING_DIGITS] [--special-chars SPECIAL_CHARS] [--trailing-chars TRAILING_CHARS]
+             [--leading-chars LEADING_CHARS] [--passwords PASSWORDS] [--max-length MAX_LENGTH]
 
 Generate passwords
 
 optional arguments:
   -h, --help            show this help message and exit
+  --quiet, -q           Only echo the generated passwords.
   --generate-config, -g
                         Generate configuration file and then exit
   --config-file CONFIG_FILE, -c CONFIG_FILE
                         Configuration file to use
   --myspell-dir MYSPELL_DIR, -i MYSPELL_DIR
                         Directory containing myspell dictionaries
+  --encoding ENCODING, -e ENCODING
+                        Character encoding of the directory
+  --unmunch-bin UNMUNCH_BIN, -u UNMUNCH_BIN
+                        Path to my/hunspell unmunch binary
   --lang LANG, -l LANG  Dictionary language to use
   --word-min-char WORD_MIN_CHAR, -m WORD_MIN_CHAR
                         Minimum number of characters in a word
@@ -58,17 +59,13 @@ optional arguments:
   --special-chars SPECIAL_CHARS, -S SPECIAL_CHARS
                         Possible characters to use as extra special characters
   --trailing-chars TRAILING_CHARS, -p TRAILING_CHARS
-                        Number of special characters to add at the end of the
-                        passphrase
+                        Number of special characters to add at the end of the passphrase
   --leading-chars LEADING_CHARS, -P LEADING_CHARS
-                        Number of special characters to add at the start of
-                        the passphrase
+                        Number of special characters to add at the start of the passphrase
   --passwords PASSWORDS, -n PASSWORDS
                         Number of passwords to generate
   --max-length MAX_LENGTH, -L MAX_LENGTH
-                        Maximum length of the generated passwords. Full-
-                        knowledge entropy calculation doesn't work when this
-                        is set.
+                        Maximum length of the generated passwords. Full-knowledge entropy calculation doesn't work when this is set.
 
 $ pwgen -g --myspell-dir /usr/share/hunspell --lang sv_SE
 Missing configuration file; generating a new at /home/user/.pwgen.cfg
@@ -87,7 +84,3 @@ Blind entropy	Password
 ========================
 
 ```
-
-# TODO
-* documentation
-* webservice

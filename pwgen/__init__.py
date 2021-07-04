@@ -1,22 +1,13 @@
 #!/usr/bin/python3
 
+import configparser
+import locale
 import math
 import os
 import sys
 import subprocess
-import locale
 
-if sys.version_info[0] < 3:
-    import ConfigParser as configparser
-else:
-    import configparser
-
-if sys.version_info >= (3, 6):
-    do_seed = False
-    import secrets as random
-else:
-    do_seed = True
-    import random
+import secrets as random
 
 class DictReadError(Exception):
     pass
@@ -161,8 +152,6 @@ def generate_passwords(conf):
     capitalize = conf.get('passwords', 'capitalize')
     max_len = conf.getint('passwords', 'max_length')
 
-    if do_seed:
-        random.seed()
     res = {}
     dict_data = _read_dictionary(conf)
 

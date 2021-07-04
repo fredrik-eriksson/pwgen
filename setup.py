@@ -8,24 +8,23 @@ except ImportError:
 
 import pwgen
 
-version = '0.1'
+version = '1.0'
 
 setup(
         name='pwgen',
         version=str(version),
         description="Passphrase generator",
         author="Fredrik Eriksson",
-        author_email="pwgen@wb9.se",
-        url="https://github.com/fredrik-eriksson/pwgen",
+        author_email="feffe@fulh.ax",
+        url="https://gitea.fulh.ax/feffe/pwgen",
         platforms=['any'],
         license='BSD',
         packages=['pwgen'],
         classifiers=[
-            'Development Status :: 1 - Planning',
+            'Development Status :: 5 - Production/Stable'
             'Environment :: Console',
             'Intended Audience :: System Administrators',
             'License :: OSI Approved :: BSD License',
-            'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 3',
             'Topic :: Utilities',
             ],
